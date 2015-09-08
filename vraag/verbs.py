@@ -1,11 +1,18 @@
 import bpy
+import bpy_types
+from functools import wraps
 
 verbs = {}
-def vraag_verb(f):
-    def wrapped(*args, **kwargs):
-        return f(*args, **kwargs)
-    verbs[f.__name__] = f
-    return wrapped
+def vraag_verb(method_or_name):
+    def decorator(method):
+        verbs[method_or_name] = method
+
+        return method
+    if callable(method_or_name):
+        verbs[method_or_name.__name__] = method_or_name
+        return method_or_name
+    else:
+        return decorator
 
 @vraag_verb
 def hide(vl):
@@ -17,7 +24,7 @@ def hide(vl):
 
 @vraag_verb
 def show(vl):
-    for element in elements:
+    for element in vl.elements:
         try:
             element.hide = False
         except:
@@ -67,12 +74,22 @@ def prop(vl, property_name, value=None):
     else:
         return set_prop(vl.elements, property_name, value)
 
-@vraag_verb
-def apply(vl, func):
+@vraag_verb("apply")
+def vraag_apply(vl, func):
     for element in vl.elements:
         yield func(element)
     return vl
 
+@vraag_verb("map")
+def vraag_map(vl, func):
+    return map(func, vl.elements)
+
 @vraag_verb
-def map(vl, func):
-    return apply(vl.elements, func)
+def activate(vl):
+    activation_types = [(bpy_types.Object, bpy.context.scene.objects)]
+    for activation_type, collection in activation_types:
+        for element in vl.elements:
+            if type(element) is activation_type:
+                collection.active = element
+                break
+

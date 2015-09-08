@@ -144,9 +144,9 @@ class ContextToken(Token):
 class VraagList(object):
     def __init__(self, elements):
         self.elements = elements
+
     def __getattr__(self, name):
         if name in verbs:
-            print(self)
             return partial(verbs[name], self)
         else:
             raise NameError("No Vraag function called '{0}'.".format(name))
