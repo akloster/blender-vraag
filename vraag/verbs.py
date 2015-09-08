@@ -93,3 +93,13 @@ def activate(vl):
                 collection.active = element
                 break
 
+@vraag_verb
+def select(vl):
+    for element in vl.elements:
+        if type(element) is bpy_types.Object:
+            element.select = True
+
+@vraag_verb
+def deselect(vl):
+    for element in vl.elements:
+        element.select = False

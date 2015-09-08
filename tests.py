@@ -36,6 +36,7 @@ class TestArrays(unittest.TestCase):
         with self.assertRaises(ValueError):
             V("objects").array.location = np.array([[0,1,2,3,4],[2,4,6,8]])
 
+
 class TestVerbs(unittest.TestCase):
     def test_everything(self):
         list(V("object").map(lambda o: o.location))
@@ -45,7 +46,16 @@ class TestVerbs(unittest.TestCase):
         suzanne = V("#Suzanne")[0]
         V("#Suzanne").activate()
         self.assertEqual(suzanne, bpy.context.scene.objects.active)
+        V("object").select()
+        V("object").deselect()
+        V(suzanne).select()
+        V("camera").select() # Camera's can't be selected
+        V("object:camera").select() # Their objects can
+        V("object:selected")
+        V("object:unselected")
 
 
+
+# Kill command line arguments to make unittest.main happier
 sys.argv[1:]=[]
 unittest.main()

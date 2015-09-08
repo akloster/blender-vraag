@@ -8,7 +8,8 @@ id_name_legal_chars = set([c for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvxyz"
             "1234567890._"])
 
-
+class ParserError(Exception):
+    pass
 class Token(object):
     def __init__(self, query_string=""):
         self.child = None
@@ -138,8 +139,46 @@ class ContextToken(Token):
             item = getattr(bpy.context, self.query_string)
             elements.append(item)
         return elements
+
     def filter(self):
         return []
+
+class PseudoClassToken(Token):
+    def build_list(self):
+        raise ParserError("Pseudoclasses can only be used to filter lists.")
+
+    def is_first(self):
+        """ not actually used! """
+        pass
+    def has_camera(element):
+        return element.data.rna_type.name == 'Camera'
+    def is_selected(element):
+        return element.select == True
+
+    def is_unselected(element):
+        return element.select == False
+
+    def is_lamp(element):
+        return element.rna_type in ["Point Lamp", "Sun Lamp", "Spot Lamp",
+                                    "Hemi Lamp", "Area Lamp"]
+    pseudo_classes = {"first": is_first,
+                      "camera": has_camera,
+                      "selected": is_selected,
+                      "unselected": is_unselected,
+                      "lamp": is_lamp
+                      }
+
+    def filter(self, elements):
+        new_elements = []
+        for element in elements:
+            if self.query_string == "first":
+                new_elements.append(element)
+                break
+            func = self.pseudo_classes[self.query_string]
+            if func(element):
+                new_elements.append(element)
+        return new_elements
+
 
 class VraagList(object):
     def __init__(self, elements):
@@ -170,6 +209,8 @@ class VraagList(object):
         return "V({0})".format(self.elements)
     def __repr__(self):
         return str(self)
+
+
 
 class Selector(object):
     def __init__(self, query):
@@ -208,11 +249,14 @@ class Selector(object):
             elif c == "@":
                 name = yield from id_name()
                 self.token.add(ContextToken(name), mode)
+            elif c == ":":
+                name = yield from id_name()
+                self.token.add(PseudoClassToken(name), mode)
             else:
                 name = c + (yield from id_name())
                 self.token.add(TypeToken(name), mode)
             c = yield
-            if c in "#§@":
+            if c in "#§@:":
                 mode = "attach"
             else:
                 mode = "descendant"
@@ -240,8 +284,17 @@ class Selector(object):
             else:
                 pos += 1
 
-def V(query_string):
-    s = Selector(query_string)
-    elements = s.token.search()
-    return VraagList(elements)
+
+def V(*args, **kwargs):
+    if len(args) == 0:
+        return VraagList([])
+    elif len(args) == 1:
+        if isinstance(args[0], str):
+            s = Selector(args[0])
+            elements = s.token.search()
+            return VraagList(elements)
+        else:
+            return VraagList([args[0]])
+    else:
+        return VraagList([])
 
