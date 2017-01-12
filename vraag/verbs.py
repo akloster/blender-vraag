@@ -99,6 +99,12 @@ def select(vl):
         if type(element) is bpy_types.Object:
             element.select = True
 
+@vraag_verb("remove")
+def remove(vl):
+    for element in vl.elements:
+        bpy.data.objects.remove(element, do_unlink=True)
+    return None
+
 @vraag_verb
 def deselect(vl):
     for element in vl.elements:
