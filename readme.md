@@ -2,7 +2,17 @@ Vraag
 =====
 A high level API for Blender, modeled after JQuery
 --------------------------------------------------
-Vraag is Dutch for query, and this library allows you to query Blender data objects in a more concise and consistent way.
+Blender originated in the Netherlands, and Vraag is Dutch for query, so this is a high level library of utilities for Python scripting in Blender.
+
+Features:
+* Vraag Queries: Query and manipulate data objects
+* Vraag Array: convert between blender data and numpy arrays
+* Vraag Construct: create objects and scenes algorithmically, like in OpenScad
+* Vraag Animate: easy setup of animations (not yet implemented)
+
+
+Vraag Query
+-----
 
 For example
 
@@ -21,6 +31,9 @@ This queries all data objects of type "Object". Analogous to CSS' id selectors w
 
 Note that Vraag doesn't care in this case what type the object is, it just searches for one with this name.
 
+
+Vraag Array
+-----
 Another nice feature is the array accessor, making Blender data easier to use with numpy:
 
 ```python
@@ -39,3 +52,26 @@ Another nice feature is the array accessor, making Blender data easier to use wi
 This API is still mostly undocumented, and rough on all the edges. There are a lot more data structures yet to be covered. The repository is just a preview of what may be possible in the future.
 
 To install Vraag, put the "vraag" directory (the one with the \_\_init\_\_.py, some place where Blender's Python can find it.
+
+Vraag Construct
+---------------
+
+Inspired by OpenScad, Vraag Construct offers a way to construct scenes and geometry through code.
+
+Features:
+* fully introspectable in Python
+* creates native Blender data
+    * components can be kept as seperate Objects
+    * objects are parented in a hierachy
+    * applying the Boolean modifiers is optional
+    * materials can be assigned through scripting
+    * existing objects can be instantiated
+* allows "debugging" the geometry through the Blender interface
+* allows easy rigging and animating through usual means
+
+Disadvantages over OpenScad:
+* a bit more verbose
+* missing some primitives
+* no 2D support
+* no extrusion/lathe yet
+
