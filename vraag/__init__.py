@@ -1,7 +1,8 @@
 from vraag.query import Selector, VraagList
 from vraag.construct import VraagConstruct 
-from vraag.utils import up, down, left, right, vector
-
+from vraag.utils import up, down, left, right
+from vraag.utils import front, back
+from vraag.utils import vector
 
 
 class BaseV(object):
@@ -27,5 +28,7 @@ __all__ = ["V",
            "down",
            "left",
            "right",
+           "front",
+           "back",
            "vector",
           ]
