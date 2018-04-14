@@ -12,9 +12,15 @@ class VraagTransformation(VraagConstruct):
         
 
 class Translate(VraagTransformation):
-    def __init__(self, parent, v):
+    def __init__(self, parent, v, y=0,z=0):
         super().__init__(parent)
-        v = np.array(v, dtype=np.float)
+        try:
+            if len(v)!=3:
+                v = v,y,z
+        except TypeError:
+            v = v, y, z
+
+        v = np.array(v, dtype=np.float)[:3]
         self.v = v
         self.matrix[3,0:3] = v.transpose()
 
@@ -44,23 +50,6 @@ class Scale(VraagTransformation):
             self.matrix[2,2] = scaler[2]
 
 register_constructor(Scale, "scale")
-
-def rotation_matrix(axis, angle):
-    """ generate rotation matrix from axis/angle.
-        Code taken from Stack Overflow
-    """
-
-    theta = angle/360*math.pi
-    axis = np.array(axis, dtype=np.float)
-    axis /= np.linalg.norm(axis)
-    a = math.cos(theta)
-    b, c, d = -axis*math.sin(theta)
-    aa, bb, cc, dd = a*a, b*b, c*c, d*d
-    bc, ad, ac, ab, bd, cd = b*c, a*d, a*c, a*b, b*d, c*d
-    return np.array([[aa+bb-cc-dd, 2*(bc+ad), 2*(bd-ac),0],
-                     [2*(bc-ad), aa+cc-bb-dd, 2*(cd+ab),0],
-                     [2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc,0],
-                     [0,0,0,1]], dtype=np.float)
 
 
 class Rotate(VraagTransformation):

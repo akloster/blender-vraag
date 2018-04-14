@@ -9,7 +9,7 @@ V("#Cube").remove()
 root = V.construct()
 
 
-root.extrude([[0,1],
+root.prism([[0,1],
               [1.5,1.5],
               [1,0],
               [1.5,-1.5],

@@ -3,6 +3,7 @@ from vraag.construct import VraagConstruct
 from vraag.utils import up, down, left, right
 from vraag.utils import front, back
 from vraag.utils import vector
+from vraag.construct.text import FontSettings
 
 
 class BaseV(object):
@@ -31,4 +32,5 @@ __all__ = ["V",
            "front",
            "back",
            "vector",
+           "FontSettings"
           ]

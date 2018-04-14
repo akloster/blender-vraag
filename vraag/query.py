@@ -5,7 +5,7 @@ from vraag.array_access import VraagArrayAccess
 from vraag.verbs import verbs
 
 id_name_legal_chars = set([c for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvxyz"
+            "abcdefghijklmnopqrstuvwxyz"
             "1234567890._"])
 
 class ParserError(Exception):
@@ -224,6 +224,7 @@ class Selector(object):
             while c==" " :
                 c = yield
             return c
+
         def id_name():
             name = ""
             c = yield
@@ -245,7 +246,6 @@ class Selector(object):
                 self.token.add(NameToken(name), mode)
             elif c == "§":
                 group_name = yield from id_name()
-                print("By Group:", group_name)
             elif c == "@":
                 name = yield from id_name()
                 self.token.add(ContextToken(name), mode)

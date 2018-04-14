@@ -4,12 +4,12 @@ A high level API for Blender, modeled after JQuery
 --------------------------------------------------
 Blender originated in the Netherlands, and Vraag is Dutch for query, so this is a high level library of utilities for Python scripting in Blender.
 
-Features:
+Components of Vraag:
 * Vraag Queries: Query and manipulate data objects
 * Vraag Array: convert between blender data and numpy arrays
 * Vraag Construct: create objects and scenes algorithmically, like in OpenScad
 * Vraag Animate: easy setup of animations (not yet implemented)
-
+* Turtle: A turtle graphics like way to define a sequence of points, for use in meshes, curves or placing objects
 
 Vraag Query
 -----
@@ -51,7 +51,7 @@ Another nice feature is the array accessor, making Blender data easier to use wi
 
 This API is still mostly undocumented, and rough on all the edges. There are a lot more data structures yet to be covered. The repository is just a preview of what may be possible in the future.
 
-To install Vraag, put the "vraag" directory (the one with the \_\_init\_\_.py, some place where Blender's Python can find it.
+To install Vraag, put the "vraag" directory (the one with the \_\_init\_\_.py, some place where Blender's Python can find it. Alternatively set a PYTHONPATH environment variable to the project's location.
 
 Vraag Construct
 ---------------
@@ -75,3 +75,10 @@ Disadvantages over OpenScad:
 * no 2D support
 * no extrusion/lathe yet
 
+
+Turtle Graphics
+-----------------
+
+Back in the early days of computer science education, there were programming environments in which a student could program a turtle running along the screen. Most famously this was the Logo programming language. The commands were like "go 5 steps forward", "turn left 20 degrees" etc.
+
+This paradigm turns out to be quite useful in constructing 3D geometry. The turtle module implemented in this project is not, however, specific to blender. Its output is a sequence of vertices, or a sequence of edges. You can use it in various ways.
