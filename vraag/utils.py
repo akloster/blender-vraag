@@ -16,6 +16,7 @@ down = vector(0,0,-1)
 front = vector(0,-1,0)
 back = vector(0,1,0)
 forward = back
+backward = front
 backwards = front
 def rotation_matrix(axis, angle):
     """ generate rotation matrix from axis/angle.

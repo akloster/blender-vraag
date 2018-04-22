@@ -32,6 +32,8 @@ class TurtlePoint(object):
             self.transformation = identity()
         else:
             self.transformation = new_transformation.copy()
+    def copy(self):
+        return TurtlePoint(self, self.transformation)
 
     @property
     def location(self):
@@ -40,9 +42,27 @@ class TurtlePoint(object):
     def transform_point(self, v):
         return np.dot(vector4(v), self.transformation)
 
+    def translate(self, v):
+        tm = translation_matrix(vector4(v))
+        tm = np.dot(tm, self.transformation)
+        return TurtlePoint(self, tm)
+
+    def scale(self, f):
+        try:
+            if len(f)!=3:
+                raise ValueError("Scaling factor must be scalar or a 3D vector")
+            tm = np.diag(vector4(f))
+        except TypeError:
+            tm = np.diag(np.repeat(f,4))
+        tm[3,3] = 1
+        return TurtlePoint(self, np.dot(tm, self.transformation))
+
+
+
+
     def move(self, v, steps=1):
         for i in range(1,steps+1):
-            tm = translation_matrix(v/steps * i)
+            tm = translation_matrix(vector4(v)/steps * i)
             tm = np.dot(tm, self.transformation)
             yield TurtlePoint(self, tm)
         tm = translation_matrix(v)
