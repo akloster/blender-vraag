@@ -1,6 +1,8 @@
 import bpy
 import bpy_types
 from functools import wraps
+import io_mesh_stl.blender_utils
+import io_mesh_stl.stl_utils
 
 verbs = {}
 def vraag_verb(method_or_name):
@@ -109,3 +111,13 @@ def remove(vl):
 def deselect(vl):
     for element in vl.elements:
         element.select = False
+
+@vraag_verb
+def export_stl(vl, filepath, ascii=False):
+    faces = []
+    for element in vl.elements:
+        faces += list(io_mesh_stl.blender_utils.faces_from_mesh(element,
+                            use_mesh_modifiers=True,
+                            global_matrix=element.matrix_world
+                            ))
+    io_mesh_stl.stl_utils.write_stl(filepath, faces, ascii=ascii)
