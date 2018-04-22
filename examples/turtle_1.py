@@ -5,7 +5,7 @@ from vraag.utils import *
 import numpy as np
 
 V("#Cube").remove()
-
+root = V.construct()
 def tests():
     t = TurtlePoint()
     yield t
@@ -22,18 +22,14 @@ def tests():
     t = yield from t.turn(up, 360*2,radius=1, steps=40, screw=-3)
 
 a = 0.025
-vertices = np.array([(-a, 0, a), (a,0, a), (a,0, -a), (-a,0,-a)])
+vertices = np.array([(-a, 0, a/2), (a,0, a/2), (a,0, -a/2), (-a,0,-a/2)])
 edges = [(0,1), (1,2), (2,3),(3,0)]
 verts, faces = turtle_extrusion_mesh(vertices, edges, tests())
 
 me = bpy.data.meshes.new("MyMesh")
 me.from_pydata(verts, [], faces)
 me.update()
-ob = bpy.data.objects.new("Extruded", me)
-scene = bpy.context.scene
-scene.objects.link(ob)
-scene.objects.active = ob
-root = V.construct()
+extruded = root.mesh(me, name="Extruded")
 for out in tests():
-    cube = root.cube(size=0.1)
+    cube = extruded.cube(size=0.1)
     cube.object.matrix_local = out.transformation
