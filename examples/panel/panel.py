@@ -1,9 +1,11 @@
-import time
 import numpy as np
-import sys
 import math
 from vraag import *
 import bpy
+
+
+# common fudge factor for making blender's CSG behave
+e = 0.0001
 
 # Setup scenes
 preview_scene = bpy.data.scenes[0]
@@ -58,6 +60,7 @@ panel_width = 100
 panel_height = 120
 panel = root.material(panel_material).box((-panel_width/2, panel_height/2, 0),
                                           (panel_width/2, -panel_height/2, -2.5))
+
 mask = V.construct().scene(export_scene_mask)
 mask_base = mask.box((-panel_width/2, panel_height/2,0),(panel_width/2, -panel_height/2, -0.8))
 
@@ -121,5 +124,20 @@ for x,y in sliders:
     bpy.context.screen.scene = export_scene_mask
     mask_base.difference(*(tick_objects(mask.translate(fixture_pos).translate((x,y,0)))))
 
-ob = V.construct().scene(export_scene_panel).rotate(right,180).mesh(panel.object.data)
-#bpy.context.screen.scene = export_scene_mask
+ep = V.construct().scene(export_scene_panel).rotate(right,180)
+export_panel = ep.mesh(panel.object.data)
+
+
+# I wasn't able to get a perfect surface with my printer, mainly because some of the contours
+# in the first layer always got messed up, or there was material where it shouldn't, resulting
+# in bumps etc.
+# So I added a sort of pseudo raft which eliminates any of the tricky contours. Now I
+# have to cut out the holes with a scalpel, but it looks much better!
+
+bpy.context.screen.scene = export_scene_panel
+export_panel.union(ep.box((-panel_width/2, panel_height/2, 0+e),
+                                          (panel_width/2, -panel_height/2, -0.2)))
+
+
+bpy.context.screen.scene = export_scene_panel
+

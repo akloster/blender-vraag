@@ -14,4 +14,3 @@ struts = (-0.21,-h/2+e,2),(0.21, h/2-e, d-e)
 knob.union(root.translate(left*1.3).box(*struts),
            root.translate(right*1.3).box(*struts))
 knob.union(root.box((-w/2+e,-0.4-e,7),(w/2-e, 0.4+e, d-e)))
-
