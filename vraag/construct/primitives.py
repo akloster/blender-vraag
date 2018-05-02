@@ -235,7 +235,7 @@ class Sphere(VraagObject):
         verts = []
         faces = []
 
-        verts.append((0,0,1.0))
+        verts.append((0,0,r))
         for j in range(parallels-1):
             polar = math.pi * (j+1) / parallels
             sp  = math.sin(polar)
@@ -250,12 +250,8 @@ class Sphere(VraagObject):
                 x = r*sp*sa
                 y = r*sp * ca
                 verts.append((x,y,z))
-        verts.append((0,0,-1.0))
+        verts.append((0,0,-r))
 
-        for i in range(meridians):
-            a = i + 1
-            b = (i + 1) % meridians + 1
-            faces.append((0,b,a))
 
         for j  in range(parallels-2):
             aStart = j * meridians + 1
@@ -267,6 +263,11 @@ class Sphere(VraagObject):
                 b = bStart + i
                 b1 = bStart + (i + 1) % meridians
                 faces.append((a,a1,b1,b))
+
+        for i in range(meridians):
+            a = i + 1
+            b = (i + 1) % meridians + 1
+            faces.append((0,b,a))
 
         for i in range(meridians):
             a = i +  meridians * (parallels - 2) + 1

@@ -10,6 +10,7 @@ id_name_legal_chars = set([c for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 class ParserError(Exception):
     pass
+
 class Token(object):
     def __init__(self, query_string=""):
         self.child = None
@@ -148,7 +149,7 @@ class PseudoClassToken(Token):
         raise ParserError("Pseudoclasses can only be used to filter lists.")
 
     def is_first(self):
-        """ not actually used! """
+        """ not actually used (yet)!"""
         pass
     def has_camera(element):
         return element.data.rna_type.name == 'Camera'

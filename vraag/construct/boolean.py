@@ -50,7 +50,8 @@ class Difference(VraagBoolean):
     operation = "DIFFERENCE"
 
 register_constructor(Difference, "difference")
+
 class Intersection(VraagBoolean):
-    operation = "INTERSECTION"
+    operation = "INTERSECT"
 
 register_constructor(Intersection, "intersection")

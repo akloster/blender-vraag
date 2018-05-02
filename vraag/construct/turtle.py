@@ -57,9 +57,6 @@ class TurtlePoint(object):
         tm[3,3] = 1
         return TurtlePoint(self, np.dot(tm, self.transformation))
 
-
-
-
     def move(self, v, steps=1):
         for i in range(1,steps+1):
             tm = translation_matrix(vector4(v)/steps * i)
@@ -111,3 +108,48 @@ def turtle_extrusion_mesh(vertices, edges,  points):
         for a,b in edges:
             faces.append((i*m+a,i*m+b, (i-1)*m+b, (i-1)*m+a))
     return verts, faces
+
+class MeshBuilder(object):
+    def __init__(self, vertices=None, faces=None):
+        self.vertices = vertices or []
+        self.faces = faces or []
+
+    @property
+    def current_vertex(self):
+        return len(self.vertices)
+
+    @property
+    def current_face(self):
+        return len(self.faces)
+
+    def add_vertices(self, vertices):
+        for v in vertices:
+            yield self.current_vertex
+            self.vertices.append(v)
+
+    def add_face(self, vertices):
+        self.faces.append(list(vertices))
+
+    def extrusion(self, vertices, edges, transform=None):
+        ep = ExtrusionPoint(vertices, edges, None, transform, self)
+        return ep
+
+
+class ExtrusionPoint(TurtlePoint):
+    def __init__(self, new_vertices, edges, parent=None, new_transformation=None, builder=None):
+        super().__init__(self, parent=parent, new_transformation=new_transformation)
+        if parent is None:
+            self.vertices = []
+            self.vert_indices = [] 
+            self.faces = []
+        else:
+            if builder is None:
+               builder = self.parent.builder
+        self.builder = builder
+
+
+    def extrude(self, argument):
+        pass
+
+    def branch(self, argument, edge):
+        pass

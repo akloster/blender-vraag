@@ -53,7 +53,7 @@ sliders = [
            ]
 
 gunplay_rg=bpy.data.fonts.load("gunplay rg.ttf")
-font = FontSettings(font=gunplay_rg, size=12, align_x="CENTER")
+font = FontSettings(font=gunplay_rg, size=15, align_x="CENTER", offset=-0.3)
 cut_font = font.update(extrude=5)
 
 panel_width = 100
@@ -90,7 +90,7 @@ for x,y,text in switches:
     f_mesh = f.object.to_mesh(scene=export_scene_mask, apply_modifiers=True,
                                     settings='RENDER')
     cutout = mask.translate(fixture_pos).translate((x,y,0)).translate((0,-15,1)).mesh(f_mesh)
-    panel.union(fixtures.translate((x,y-7.3,0)).box((-5,-3.3,0),(5,-1.5,-10)))
+    panel.union(fixtures.translate((x,y-7.3,0)).box((-5,-3.3,0),(5,-1.5,-15)))
     hole = fixtures.translate((x,y,0)).cylinder(radius=3.4, height=20)
     panel.difference(hole)
     bpy.context.screen.scene = export_scene_mask
@@ -115,17 +115,23 @@ def tick_objects(pos):
 for x,y in sliders:
     bpy.context.screen.scene = preview_scene
     pos = fixtures.translate((x,y,0))
-    pos.mesh(slider_mesh, name="Slider.000")
+    #pos.mesh(slider_mesh, name="Slider.000")
+    bottom_hold = pos.translate((0,-44.2,0))
+    panel.union(bottom_hold.box((-5, 0, 0),(5, -2, -15)))
+    panel.union(
+        bottom_hold.box((5-e, 6, -7.5), (-5+e, 0+e, -1.5)),
+        pos.box((5-e, +37, -7.5), (-5+e, 44, -1.5))
+    )
+
     hole = fixtures.translate((x,y,0)).cube(size=(3.1,72,10))
     panel.difference(hole)
-    panel.union(pos.translate((0,-44.2,0)).box((-5,0,0),(5,-2,-10)))
     list(tick_objects(pos))
 
     bpy.context.screen.scene = export_scene_mask
     mask_base.difference(*(tick_objects(mask.translate(fixture_pos).translate((x,y,0)))))
 
 ep = V.construct().scene(export_scene_panel).rotate(right,180)
-export_panel = ep.mesh(panel.object.data)
+export_panel = ep.mesh(panel.object.data.copy())
 
 
 # I wasn't able to get a perfect surface with my printer, mainly because some of the contours
@@ -139,5 +145,5 @@ export_panel.union(ep.box((-panel_width/2, panel_height/2, 0+e),
                                           (panel_width/2, -panel_height/2, -0.2)))
 
 
-bpy.context.screen.scene = export_scene_panel
+bpy.context.screen.scene = preview_scene
 
