@@ -5,7 +5,7 @@ from vraag import *
 import bpy
 
 
-V("#Cube").remove()
+V("Cube").remove()
 root = V.construct()
 
 
@@ -17,3 +17,5 @@ paragraph_font =font.update(size=0.25)
 
 root.translate((0,4,0)).font(text="Hello", settings=heading_font)
 root.translate((-5,3,0)).font(text="Lorem ipsum dolor sit amet, consectetur adipiscing elit", settings=paragraph_font)
+
+root.plane()

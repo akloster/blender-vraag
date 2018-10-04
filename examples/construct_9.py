@@ -1,11 +1,7 @@
-import time
-import sys
-import math
 from vraag import *
-import bpy
 
 
-V("#Cube").remove()
+V("Cube").remove()
 root = V.construct()
 
 sphere = root\

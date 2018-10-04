@@ -11,7 +11,6 @@ class VraagObject(VraagConstruct):
         self.name = name
 
     def setup(self, ob):
-        ob.select = True
         ob.parent = self.get_parent_object() 
         ob.matrix_local = self.calculate_local_matrix()
         ob.name = self.name
@@ -24,10 +23,47 @@ class VraagObject(VraagConstruct):
             scene = bpy.context.scene
         else:
             scene = node._scene
-        scene.objects.link(ob)
-        #scene.objects.active = ob
+        if bpy.app.version < (2,80):
+            scene.objects.link(ob)
+        else:
+            scene.collection.objects.link(ob)
         return ob
 
+
+class Plane(VraagObject):
+    def __init__(self, parent, size=(1,1), name="Plane"):
+        super().__init__(parent, name)
+        self.size = size
+        self.name = name
+        self.object = self.build()
+
+    def build(self):
+        me = bpy.data.meshes.new(self.name)
+        size = self.size
+        try:
+            if len(size)==2:
+                sx, sy = size
+            else:
+                raise TypeError("Size parameter must be a scalar or have two elements")
+        except TypeError:
+            sx = size
+            sy = size
+
+        verts = np.array([[-sx,sy,0],
+                         [-sx,-sy,0],
+                         [sx,-sy,0],
+                         [sx,sy,0]]
+                        )/2
+        faces = [[0,1,2,3]]
+
+        me.from_pydata(verts, [], faces)
+        me.update()
+
+        ob = bpy.data.objects.new(self.name, me)
+        self.setup(ob)
+        return ob
+
+register_constructor(Plane, "plane")
 
 class Cube(VraagObject):
     def __init__(self, parent, size=1, name="Cube"):
@@ -129,6 +165,16 @@ def make_circle_points(n):
     return X
 
 
+
+def parse_height(param):
+    try:
+        if len(param)==2:
+            a,b = param
+            return a,b 
+    except TypeError:
+        return -param/2, param/2
+    return param
+
 class Extrude(VraagObject):
     def __init__(self, parent, points, height=1, name="Extrusion"):
         super().__init__(parent, name=name)
@@ -140,12 +186,11 @@ class Extrude(VraagObject):
         verts = np.array(self.points, dtype=float)
         if verts.shape[1] != 2:
             raise TypeError("Vertices for extrusion must have two columns.")
+        top, bottom = parse_height(self.height)
         n_points = len(self.points)
         poly = np.zeros([n_points,3], dtype=float)
         poly[:, :-1] = verts
-        delta_z = np.zeros(poly.shape)
-        delta_z[:,2]= self.height/2.0
-        vertices = np.vstack([poly+delta_z, poly-delta_z])
+        vertices = np.vstack([poly+np.array((0,0,bottom)), poly+np.array((0,0, top))])
         faces = [np.arange(0,len(poly), dtype=int)]
         faces.append(faces[0][::-1]+len(poly))
 
@@ -166,28 +211,30 @@ class Extrude(VraagObject):
 register_constructor(Extrude, "extrude")
 register_constructor(Extrude, "prism")
 
+
 class Cylinder(VraagObject):
-    def __init__(self, parent, radius=1, height = 1, n_vertices=64, name="Cylinder"):
+    def __init__(self, parent, radius=1, height = 1, n_vertices=64, name="Cylinder", cap="polygon"):
         super().__init__(parent, name=name)
         self.n_vertices = n_vertices
         self.radius = radius
         self.height = height
+        self.cap = cap
         self.object = self.build()
-
 
     def build(self):
         n = self.n_vertices
         circle_points = make_circle_points(n)*self.radius
+        top,bottom = parse_height(self.height)
         total_v = n*2 + 2
         vertices = np.zeros((total_v,3))
         upt = up.transpose()
-        vertices[0,:] = upt * self.height/2
-        vertices[1,:] = -upt * self.height/2
+        vertices[0,:] = upt * top
+        vertices[1,:] = upt * bottom
         vertices[2:n+2,0] = circle_points[:,0]
         vertices[2:n+2,1] = circle_points[:,1]
 
-        vertices[2:n+2,:] += upt * (self.height/2)
-        vertices[n+2:2*n+2,:] -= upt *(self.height/2)
+        vertices[2:n+2,:] += upt * top
+        vertices[n+2:2*n+2,:] = upt *  bottom
 
         vertices[n+2:2*n+2,0] = circle_points[:,0]
         vertices[n+2:2*n+2,1] = circle_points[:,1]
@@ -196,21 +243,29 @@ class Cylinder(VraagObject):
 
         faces  =[]
 
+        top_face = []
+        bottom_face= []
         for i in range(n):
             a = 2+i
             b = 2+(i+1) % n 
             c = n+2+i
             d = n+2+(i+1)%n
-            faces.append([0,a,b])
-            faces.append([1,c,d])
+            if self.cap=="fan":
+                faces.append([0,a,b])
+                faces.append([1,c,d])
+            elif self.cap=="polygon":
+                top_face.append(a)
+                bottom_face.append(c)
 
             faces.append([a,c,d,b])
+        if self.cap=="polygon":
+            faces.append(top_face)
+            faces.append(bottom_face)
 
         me.from_pydata(vertices, [], faces)
         me.update()
 
         ob = bpy.data.objects.new(self.name, me)
-        scn = bpy.context.scene
         self.setup(ob)
         return ob
 
@@ -303,10 +358,11 @@ class Empty(VraagObject):
 register_constructor(Empty, "empty")
 
 class Mesh(VraagObject):
-    def __init__(self, parent, source, library=None, name="LinkedMesh"):
+    def __init__(self, parent, source, library=None, name="LinkedMesh", linked=True):
         super().__init__(parent, name=name)
         self.source = source
         self.library = library
+        self.linked = linked
         self.object = self.build()
 
     def find_mesh_locally(self, source):
@@ -331,8 +387,33 @@ class Mesh(VraagObject):
             with bpy.data.libraries.load(self.library, relative=True, link=True) as (data_from, data_to):
                     data_to.meshes = [self.source]
             mesh = data_to.meshes[0]
+        if not self.linked:
+            mesh = mesh.copy()
         ob = bpy.data.objects.new(self.name, mesh)
         self.setup(ob)
         return ob
 
 register_constructor(Mesh, "mesh")
+
+class STL(VraagObject):
+    def __init__(self, parent, filename, name=None):
+        super().__init__(parent, name=name)
+        self.filename = filename
+        if name is None:
+            self.name = filename
+        else:
+            self.name = name
+        self.object = self.build()
+
+    def build(self):
+        from io_mesh_stl.stl_utils import read_stl
+        faces, normals,vertices = read_stl(self.filename)
+        #print(vertices[:10])
+        me = bpy.data.meshes.new(self.name)
+        me.from_pydata(vertices, [], faces)
+        me.update()
+        ob = bpy.data.objects.new(self.name, me)
+        self.setup(ob)
+        return ob
+
+register_constructor(STL, "stl")

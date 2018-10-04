@@ -5,10 +5,10 @@ from vraag import *
 import bpy
 
 
-V("#Cube").remove()
+V("Cube").remove()
 root = V.construct()
 
-root.cube().difference(root.cylinder(radius=0.4,height=1.2))
+root.cube().difference(root.cylinder(radius=0.4,height=1.2), apply_modifier=False, keep=True)
 
 p = root.translate([2,0,0])
 p.cube().union(p.cylinder(radius=0.4,height=1.2))

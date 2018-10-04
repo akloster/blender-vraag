@@ -12,15 +12,18 @@ def find_scene_for_object(ob):
             return scene
     else:
         raise ValueError("Object is not in any scene.")
+
 class VraagBoolean(VraagConstruct):
     def __init__(self, parent, target, *targets,**kwargs):
         super().__init__(parent) 
         self.target = target
         self.apply_modifier = kwargs.get("apply_modifier", True)
         self.keep = kwargs.get("keep", False)
+        self.solver = kwargs.get("solver", "BMESH")
+       
 
         obj = self.parent.object
-        bpy.context.scene.objects.active = obj
+        #bpy.context.scene.objects.active = obj
          
         if targets:
             targets =[target] + list(targets)
@@ -32,13 +35,25 @@ class VraagBoolean(VraagConstruct):
             mod = self.parent.object.modifiers.new (name='bool.001', type="BOOLEAN")
             mod.operation = self.operation
             mod.object = obj
-            mod.solver = "BMESH"
+            if bpy.app.version < (2,80):
+                mod.solver = self.solver
             if self.apply_modifier:
                 # Using an operator for this, and a string name to reference the modifier
                 # seems wrong and broken. Haven't found a better way though
-                old_scene = bpy.context.screen.scene
+                old_scene = bpy.context.scene
                 new_scene = old_scene
-                result = bpy.ops.object.modifier_apply(modifier= mod.name)
+                if bpy.app.version < (2, 80):
+                    context = bpy.context.copy()
+                    context['modifier'] = mod
+                    context['object'] = parent.object
+                    bpy.ops.object.modifier_apply(context, modifier=mod.name)
+                else:
+                    bpy.context.window.view_layer.objects.active = parent.object
+                    context = bpy.context.copy()
+                    context['modifier'] = mod
+                    context['object'] = parent.object
+                    bpy.ops.object.modifier_apply(context, apply_as="DATA", modifier=mod.name)
+
                 if not self.keep:
                     bpy.data.objects.remove(obj, do_unlink=True)
 

@@ -4,7 +4,7 @@ from vraag.construct.turtle import *
 from vraag.utils import *
 import numpy as np
 
-V("#Cube").remove()
+V("Cube").remove()
 root = V.construct()
 
 
@@ -54,4 +54,6 @@ for i in range(3):
 points = np.array(points)
 points[:,0]-= 0.5
 points[:,1]-= points[:,1].max() / 3
-root.rotate(right,90).scale(5).prism(points, height=0.1)
+koch_flake = root.rotate(right,90).scale(5).prism(points, height=0.1)
+
+V(koch_flake).export_stl("koch_flake.stl")

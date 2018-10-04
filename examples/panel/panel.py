@@ -98,6 +98,43 @@ for x,y,text in switches:
     V(f.object).remove()
 
 bpy.context.screen.scene = preview_scene
+# Box walls
+wall_width = 0.4*4
+box_height = 50
+walls = root.translate(down*2.5).material(panel_material)
+a = panel_width/2
+b = panel_height/2 
+panel_walls = walls.box((-a,-b,-box_height),(a, b, 0))
+
+a = panel_width/2-wall_width 
+b = panel_height/2-wall_width
+c = screw_margin*2.8
+
+points = [(-a+c,-b),
+          (a-c,-b),
+          (a,-b+c),
+          (a,b-c),
+          (a-c,b),
+          (-a+c,b),
+          (-a, b-c),
+          (-a, -b+c)
+         ]
+
+a = panel_width/2-screw_margin
+b = panel_height/2-screw_margin
+inner_walls = walls.prism(points, height=(10,-box_height-10))
+panel_walls.difference(inner_walls)
+
+for (x,y) in [(-a,-b),(a,b),(-a,b),(a,-b)]:
+    cyl = panel_walls.difference(walls.translate((x,y,0)).cylinder(radius=3.1, height=(0,-10)))
+    panel_walls.difference(cyl)
+
+
+wedge = walls.translate(down*30).rotate(right,5).box((-2*a, -2*a, -100),(2*a, 2*a,0))
+panel_walls.difference(wedge)
+
+V(panel_walls.object).export_stl("box_wall.stl")
+bpy.context.screen.scene = preview_scene
 
 def tick_objects(pos):
     offset = -44.2+15
@@ -125,10 +162,11 @@ for x,y in sliders:
 
     hole = fixtures.translate((x,y,0)).cube(size=(3.1,72,10))
     panel.difference(hole)
-    list(tick_objects(pos))
 
     bpy.context.screen.scene = export_scene_mask
     mask_base.difference(*(tick_objects(mask.translate(fixture_pos).translate((x,y,0)))))
+
+
 
 ep = V.construct().scene(export_scene_panel).rotate(right,180)
 export_panel = ep.mesh(panel.object.data.copy())
@@ -146,4 +184,4 @@ export_panel.union(ep.box((-panel_width/2, panel_height/2, 0+e),
 
 
 bpy.context.screen.scene = preview_scene
-
+V(mask_base.object).hide()

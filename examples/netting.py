@@ -64,7 +64,7 @@ y_size = 70
 n, m = round(y_size/y_spacing),round(x_size/x_spacing)
 layer_height = 0.2
 
-V("#Cube").remove()
+V("Cube").remove()
 
 root = V.construct()
 

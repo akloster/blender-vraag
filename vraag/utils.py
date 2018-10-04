@@ -1,4 +1,5 @@
 import numpy as np
+import bpy
 import math
 
 def vector(*v):
@@ -34,4 +35,37 @@ def rotation_matrix(axis, angle):
                      [2*(bc-ad), aa+cc-bb-dd, 2*(cd+ab),0],
                      [2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc,0],
                      [0,0,0,1]], dtype=np.float)
+
+def find_materials(*args):
+    for arg in args:
+        if isinstance(arg, str):
+            yield bpy.data.materials[arg]
+
+        try:
+            yield from find_materials(list(iter(arg)))
+        except TypeError as te:
+            pass
+
+def walk_collections(collection=None):
+    if collection is None:
+        collection = bpy.context.collection
+    yield collection
+    for child in collection.children:
+        yield from walk_collections(child)
+
+def find_collections(*args):
+    for arg in args:
+        if isinstance(arg, str):
+            for coll in walk_collections():
+                if coll.name==arg:
+                    yield coll
+            continue
+
+        if isinstance(arg, bpy.types.Collection):
+            yield arg
+            continue
+        try:
+            yield from find_collections(*arg)
+        except TypeError as te:
+            pass
 

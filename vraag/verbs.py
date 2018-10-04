@@ -3,6 +3,7 @@ import bpy_types
 from functools import wraps
 import io_mesh_stl.blender_utils
 import io_mesh_stl.stl_utils
+from vraag.utils import find_materials
 
 verbs = {}
 def vraag_verb(method_or_name):
@@ -16,13 +17,76 @@ def vraag_verb(method_or_name):
     else:
         return decorator
 
+def find_materials(*args):
+    for arg in args:
+        if isinstance(arg, str):
+            yield bpy.data.materials[arg]
+            continue
+        if isinstance(arg, bpy.types.Material):
+            yield arg
+            continue
+
+        try:
+            yield from find_materials(list(arg))
+        except TypeError as te:
+            pass
+
+def filter_by_materials(elements, *args):
+    materials = list(find_materials(*args))
+    for o in elements:
+        for ms in o.material_slots:
+            if ms.material in materials:
+                yield o
+                break
+
+@vraag_verb
+def material(vl, *args):
+    return vl.__class__(list(filter_by_materials(vl.elements, *args)))
+
+
+def find_scenes(*args):
+    for arg in args:
+        if isinstance(arg, str):
+            yield bpy.data.scenes[arg]
+            continue
+        if isinstance(arg, bpy.types.Scene):
+            yield arg
+            continue
+        try:
+            l = list(args)
+        except TypeError as te:
+            pass
+        else:
+            yield from find_scenes(l)
+
+
+def filter_by_scenes(elements, *args):
+    scenes = list(find_scenes(*args))
+    for o in elements:
+        for scene in scenes:
+            if o.name in scene.objects:
+                yield o
+                break
+
+@vraag_verb
+def scene(vl, *args):
+    return vl.__class__(list(filter_by_scenes(vl.elements, *args)))
+
 @vraag_verb
 def hide(vl):
+    if bpy.app.version >= (2,80):
+        raise NotImplementedError("Hide is not yet implemented for Blender 2.80 and above.")
+
     for element in vl.elements:
-        try:
-            element.hide = True
-        except:
-            continue
+        element.hide = True
+    return vl
+
+
+@vraag_verb
+def names(vl):
+    for element in vl.elements:
+        yield element.name
+
 
 @vraag_verb
 def show(vl):
@@ -31,6 +95,7 @@ def show(vl):
             element.hide = False
         except:
             continue
+    return vl
 
 @vraag_verb
 def set_prop(vl, property_name, value):

@@ -4,7 +4,7 @@ from vraag.construct.turtle import *
 from vraag.utils import *
 import numpy as np
 
-V("#Cube").remove()
+V("Cube").remove()
 root = V.construct()
 def rounded_polygon(n=3):
     a = 1

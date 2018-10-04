@@ -11,8 +11,10 @@ Components of Vraag:
 * Vraag Animate: easy setup of animations (not yet implemented)
 * Turtle: A turtle graphics like way to define a sequence of points, for use in meshes, curves or placing objects
 
+Currently Vraag is targeting mainly Blender versions before 2.8, with initial support for 2.8 coming up.
+
 Vraag Query
------
+------------
 
 For example
 
@@ -33,7 +35,7 @@ Note that Vraag doesn't care in this case what type the object is, it just searc
 
 
 Vraag Array
------
+-----------
 Another nice feature is the array accessor, making Blender data easier to use with numpy:
 
 ```python

@@ -4,6 +4,7 @@ import math
 from vraag import *
 import bpy
 
+# This doesn't quite work on 2.8 yet, because materials have gotten more complicated!
 def simple_material(name, diffuse):
     mat = bpy.data.materials.new(name)
     mat.diffuse_color = diffuse
@@ -14,7 +15,7 @@ def simple_material(name, diffuse):
 red_material = simple_material("red", [1,0,0]) 
 yellow_material = simple_material("yellow", [1,1,0]) 
 green_material = simple_material("green", [0,1,0]) 
-V("#Cube").remove()
+V("Cube").remove()
 root = V.construct()
 
 root.material(green_material)\

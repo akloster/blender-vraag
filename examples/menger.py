@@ -6,7 +6,7 @@ import bpy
 import numpy as np
 
 
-V("#Cube").remove()
+V("Cube").remove()
 root = V.construct()
 
 
