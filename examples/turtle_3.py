@@ -34,11 +34,6 @@ def fractal(start=None, level=1):
     e = d.rotate(down, α)
     if level > 0:
         yield from fractal(e.scale(f), level-1)
-    e = e.translate(f*right)
-    #yield e
-    
-    #e = yield from a.move(3*f*right,steps=1)
-    #return e
 
 def to_2d(iterator):
     for t in iterator:

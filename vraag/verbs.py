@@ -6,7 +6,7 @@ import io_mesh_stl.stl_utils
 from vraag.utils import find_materials
 
 verbs = {}
-def vraag_verb(method_or_name):
+def vraag_verb(method_or_name, base=True, extended=True):
     def decorator(method):
         verbs[method_or_name] = method
 
@@ -38,6 +38,11 @@ def filter_by_materials(elements, *args):
             if ms.material in materials:
                 yield o
                 break
+
+
+@vraag_verb
+def on_layer(vl, number):
+    return vl.__class__([element for element in vl if element.layers[number]])
 
 @vraag_verb
 def material(vl, *args):
@@ -95,7 +100,7 @@ def show(vl):
             element.hide = False
         except:
             continue
-    return vl
+    return vl.__class__(vl.elements)
 
 @vraag_verb
 def set_prop(vl, property_name, value):
@@ -129,17 +134,17 @@ def iget_prop(vl, property_name):
 def iprop(vl, property_name, value=None):
     l = []
     if value is None:
-        yield iget_prop(vl.elements, property_name)
+        yield iget_prop(vl, property_name)
     else:
-        yield iset_prop(vl.elements, property_name, value)
+        yield iset_prop(vl, property_name, value)
 
 @vraag_verb
 def prop(vl, property_name, value=None):
     l = []
     if value is None:
-        return get_prop(vl.elements, property_name)
+        return get_prop(vl, property_name)
     else:
-        return set_prop(vl.elements, property_name, value)
+        return set_prop(vl, property_name, value)
 
 @vraag_verb("apply")
 def vraag_apply(vl, func):
@@ -151,6 +156,10 @@ def vraag_apply(vl, func):
 def vraag_map(vl, func):
     return map(func, vl.elements)
 
+@vraag_verb("filter")
+def vraag_filter(vl, func):
+    return vl[vl.map(func)]
+
 @vraag_verb
 def activate(vl):
     activation_types = [(bpy_types.Object, bpy.context.scene.objects)]
@@ -159,12 +168,14 @@ def activate(vl):
             if type(element) is activation_type:
                 collection.active = element
                 break
+    return vl
 
 @vraag_verb
 def select(vl):
     for element in vl.elements:
         if type(element) is bpy_types.Object:
             element.select = True
+    return vl
 
 @vraag_verb
 def remove(vl):
@@ -176,6 +187,7 @@ def remove(vl):
 def deselect(vl):
     for element in vl.elements:
         element.select = False
+    return vl
 
 @vraag_verb
 def export_stl(vl, filepath, ascii=False):
@@ -186,3 +198,4 @@ def export_stl(vl, filepath, ascii=False):
                             global_matrix=element.matrix_world
                             ))
     io_mesh_stl.stl_utils.write_stl(filepath, faces, ascii=ascii)
+    return vl

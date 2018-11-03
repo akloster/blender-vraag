@@ -68,6 +68,9 @@ class TestConstruct(unittest.TestCase):
         root = V.construct()
         root.cube()
         
+
+blend_file = os.path.join(os.path.dirname(__file__), "playground.blend")
+bpy.ops.wm.open_mainfile(filepath= blend_file)
 # Kill command line arguments to make unittest.main happier
 sys.argv[1:]=[]
 unittest.main()

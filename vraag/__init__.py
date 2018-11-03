@@ -9,6 +9,9 @@ from vraag.construct.text import FontSettings
 
 def filter_by_basename(l, arg):
     for o in l:
+        if o.name == arg:
+            yield o
+            continue
         if "." in o.name:
             n = ".".join(o.name.split(".")[:-1])
             if n == arg:
@@ -26,7 +29,10 @@ class BaseV(object):
     def parse_args(self, args):
         for arg in args:
             if isinstance(arg, str):
-                yield bpy.data.objects[arg]
+                try:
+                    yield bpy.data.objects[arg]
+                except KeyError:
+                    continue
             if isinstance(arg, bpy.types.Object):
                 yield arg
             if isinstance(arg, VraagList):
@@ -41,9 +47,8 @@ class BaseV(object):
         for o in bpy.data.objects:
             yield o
 
-    def all(object):
-        a = [o for o in bpy.data.objects]
-        return VraagList(a)
+    def all(self): 
+        return VraagList(self.get_all_objects())
 
     def basename(self, name):
         elements = filter_by_basename(self.get_all_objects(), name)
@@ -51,6 +56,8 @@ class BaseV(object):
 
     def material(self, *args):
         return self.all().material(*args)
+    def on_layer(self, *args):
+        return self.all().on_layer(*args)
 
     def collection(self, *args):
         if bpy.app.version < (2, 80):

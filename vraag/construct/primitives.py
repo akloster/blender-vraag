@@ -27,6 +27,10 @@ class VraagObject(VraagConstruct):
             scene.objects.link(ob)
         else:
             scene.collection.objects.link(ob)
+
+        node = self.get_last_layers_node()
+        if node is not None:
+            ob.layers = [(i in node._layers) for i in range(len(ob.layers))]
         return ob
 
 

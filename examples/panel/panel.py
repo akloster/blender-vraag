@@ -3,7 +3,6 @@ import math
 from vraag import *
 import bpy
 
-
 # common fudge factor for making blender's CSG behave
 e = 0.0001
 
@@ -34,7 +33,7 @@ panel_material = bpy.data.materials['PanelMaterial']
 spacing = 20
 tolerance = 0.5
 screw_margin = 5
-screw_diameter = 3
+screw_diameter = 3.3
 
 # x,y, "text"
 switches = [
@@ -100,7 +99,7 @@ for x,y,text in switches:
 bpy.context.screen.scene = preview_scene
 # Box walls
 wall_width = 0.4*4
-box_height = 50
+box_height = 150
 walls = root.translate(down*2.5).material(panel_material)
 a = panel_width/2
 b = panel_height/2 
@@ -130,7 +129,7 @@ for (x,y) in [(-a,-b),(a,b),(-a,b),(a,-b)]:
     panel_walls.difference(cyl)
 
 
-wedge = walls.translate(down*30).rotate(right,5).box((-2*a, -2*a, -100),(2*a, 2*a,0))
+wedge = walls.translate(down*70).rotate(right,5).box((-2*a, -2*a, -400),(2*a, 2*a,0))
 panel_walls.difference(wedge)
 
 V(panel_walls.object).export_stl("box_wall.stl")

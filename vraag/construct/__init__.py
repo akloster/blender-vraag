@@ -7,6 +7,8 @@ from .base import VraagConstruct, register_constructor
 from .primitives import VraagObject
 from .transform import *
 from .boolean import *
+from .turtle import *
+from .mesh_builder import MeshBuilder, extrude2
 
 
 class Material(VraagObject):
@@ -30,11 +32,9 @@ class Scene(VraagObject):
 register_constructor(Scene, "scene")
 
 class Layers(VraagObject):
-    def __init__(self, parent, layers):
+    def __init__(self, parent, *layers):
         super().__init__(parent)
         _layers = None
         self._layers = layers
-
-
 
 register_constructor(Layers, "layers")

@@ -41,4 +41,9 @@ Returns all objects in "Opening Scene".
 
 First hides then shows all Objects named "Cube" or "Cube.*".
 
+.. code-block:: python
+
+    vl = V.basename("Cube")
+    vl.save_stl("Cube.stl")
+
 This API is still very incomplete. Any feature suggestions or pull requests welcome!

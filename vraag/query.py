@@ -7,11 +7,13 @@ from functools import partial
 from vraag.array_access import VraagArrayAccess
 from vraag.verbs import verbs
 
-
+object_prefices = dict(CAMERA='🎥',
+                       MESH='📦',
+                       LAMP='💡')
 
 class VraagList(object):
     def __init__(self, elements):
-        self.elements = elements
+        self.elements = list(elements)
 
     def __getattr__(self, name):
         if name in verbs:
@@ -24,33 +26,35 @@ class VraagList(object):
         self._vraag_array_access = VraagArrayAccess(self)
         return self._vraag_array_access
 
+    @property
+    def x(self):
+        return np.array([e.location.x for e in self.elements])
+
+    @property
+    def y(self):
+        return np.array([e.location.y for e in self.elements])
+
+    @property
+    def z(self):
+        return np.array([e.location.z for e in self.elements])
     def __len__(self):
         return len(self.elements)
     def __iter__(self):
         return iter(self.elements)
 
+    def __getitem__(self, idx):
+        if hasattr(idx, "__iter__"):
+            idx = list(idx)
+            if len(idx) == len(self):
+                return self.__class__([e for e,b in zip(self,idx) if b])
+        return self.elements[idx]
 
-    def __getitem__(self, i):
-        return self.elements[i]
-
-
+    def display_names(self):
+        for e in self.elements:
+            yield object_prefices.get(e.type, '')+ e.name
     def __str__(self):
-        return "V({0})".format(list(self.names()))
+        return "V({0})".format(", ".join(self.display_names()))
     def __repr__(self):
         return str(self)
 
-
-
-def V(*args, **kwargs):
-    if len(args) == 0:
-        return VraagList([])
-    elif len(args) == 1:
-        if isinstance(args[0], str):
-            s = Selector(args[0])
-            elements = s.token.search()
-            return VraagList(elements)
-        else:
-            return VraagList([args[0]])
-    else:
-        return VraagList([])
 
