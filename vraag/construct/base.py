@@ -112,10 +112,10 @@ class VraagConstruct(object, metaclass=ConstructorMeta):
 
         return None
     def clean(self):
-        if self.object:
-            bpy.data.objects.remove(self.object, do_unlink=True)
         for child in self.children:
             child.clean()
+        if self.object:
+            bpy.data.objects.remove(self.object, do_unlink=True)
         self.children = []
         return self
 

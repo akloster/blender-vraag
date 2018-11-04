@@ -354,8 +354,8 @@ class Empty(VraagObject):
 
     def build(self):
         ob = bpy.data.objects.new(self.name, None)
-        ob.empty_draw_size=self.draw_size
-        ob.empty_draw_type=self.draw_type
+        #ob.empty_draw_size=self.draw_size
+        #ob.empty_draw_type=self.draw_type
         self.setup(ob)
         return ob
 
@@ -412,7 +412,6 @@ class STL(VraagObject):
     def build(self):
         from io_mesh_stl.stl_utils import read_stl
         faces, normals,vertices = read_stl(self.filename)
-        #print(vertices[:10])
         me = bpy.data.meshes.new(self.name)
         me.from_pydata(vertices, [], faces)
         me.update()
