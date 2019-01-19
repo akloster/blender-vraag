@@ -30,6 +30,6 @@ def test2():
     yield from t.move((0,0,4),steps=1)
     #yield from t.turn((1,0,0)
 
-mesh= extrude2(test(), test2(), width=0.1)
+mesh= extrude2(test(), test2(), width=0.1).make_mesh()
 root.mesh(mesh)
 

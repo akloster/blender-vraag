@@ -116,6 +116,10 @@ class MeshBuilder(object):
         me.update()
         return me
 
+    def to_shape_key(self, shape_key):
+        for j in range(len(self.vertices)):
+           shape_key.data[j].co = self.vertices[j]
+
 
 def extrude2(path1, path2,width=1):
     """
@@ -145,7 +149,7 @@ def extrude2(path1, path2,width=1):
             m.vertices[i] = t.transform_point(m.vertices[i])[:3]
     m.connect_extruded(edges, new_map)
     m.connect_like(edges,new_map)
-    return m.make_mesh()
+    return m
 
 def pipe(path):
     """ Creates a solid pipe along 'path'. The crosssection is taken from the "vertices" data, which must be
@@ -167,4 +171,4 @@ def pipe(path):
         m.connect_loops(start_1,start_2, n)
         start_1 = start_2
     m.add_face(reversed(range(m.current_vertex_index-n, m.current_vertex_index)))
-    return m.make_mesh()
+    return m

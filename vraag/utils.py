@@ -69,3 +69,18 @@ def find_collections(*args):
         except TypeError as te:
             pass
 
+
+def teardrop(r,n,a=45, truncated_h=None):
+    theta = np.linspace(0,math.pi*2, n)
+    x = np.vstack((np.sin(theta)*r, np.cos(theta)*r, np.zeros_like(theta))).transpose()
+    a_ = int(round(a/360*n))
+    h2 = 1/math.cos (a/360*math.pi*2)*r
+    h = math.cos(a/360*math.pi*2)*r
+    if truncated_h is None:
+        truncated_h = np.max(x[:,1])+1
+    x[:a_,0]= np.linspace(0,x[a_,0], a_)
+    x[:a_,1]= np.minimum(np.linspace(h2,x[a_,1], a_), truncated_h)
+
+    x[-a_:, 0]= np.linspace(x[-a_,0], 0, a_)
+    x[-a_:, 1]= np.minimum(np.linspace(x[-a_,1],h2, a_), truncated_h)
+    return x

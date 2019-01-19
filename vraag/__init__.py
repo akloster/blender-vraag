@@ -6,6 +6,7 @@ from vraag.utils import front, back
 from vraag.utils import vector
 from vraag.utils import find_collections
 from vraag.construct.text import FontSettings
+from vraag.node_helpers import NodeTreeHelper
 
 def filter_by_basename(l, arg):
     for o in l:
@@ -83,5 +84,6 @@ __all__ = ["V",
            "front",
            "back",
            "vector",
-           "FontSettings"
+           "FontSettings",
+           "NodeTreeHelper"
           ]

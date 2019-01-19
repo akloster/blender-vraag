@@ -34,7 +34,14 @@ register_constructor(Scene, "scene")
 class Layers(VraagObject):
     def __init__(self, parent, *layers):
         super().__init__(parent)
-        _layers = None
         self._layers = layers
 
 register_constructor(Layers, "layers")
+
+
+class Collections(VraagObject):
+    def __init__(self, parent, *collections):
+        super().__init__(parent)
+        self._collections = collections
+
+register_constructor(Collections, "collections")

@@ -26,7 +26,13 @@ class VraagObject(VraagConstruct):
         if bpy.app.version < (2,80):
             scene.objects.link(ob)
         else:
-            scene.collection.objects.link(ob)
+            node = self.get_last_collections_node()
+            if node:
+                for collection in node._collections:
+                    collection.objects.link(ob)
+            else:
+                scene.collection.objects.link(ob)
+
 
         node = self.get_last_layers_node()
         if node is not None:
@@ -160,6 +166,34 @@ class Box(VraagObject):
 register_constructor(Box, "box")
 
 
+class Plane(VraagObject):
+    def __init__(self, parent, size=(1,1), name="Plane"):
+        super().__init__(parent, name)
+        self.size = size
+        self.object = self.build()
+
+    def build(self):
+        me = bpy.data.meshes.new(self.name)
+        a,b = self.size
+        a /= 2
+        b /= 2
+        verts = np.array([
+            [-a,-b, 0],
+            [-a, b, 0],
+            [a, b, 0],
+            [a, -b, 0],
+        ], dtype=np.float)
+
+        faces = [[0, 1, 2, 3]]
+        me.from_pydata(verts, [], faces)
+        me.update()
+
+        ob = bpy.data.objects.new(self.name, me)
+        
+        self.setup(ob)
+        return ob
+
+register_constructor(Plane, "plane")
 
 def make_circle_points(n):
     X = np.zeros((n,2), dtype=np.float)

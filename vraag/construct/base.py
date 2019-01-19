@@ -111,11 +111,24 @@ class VraagConstruct(object, metaclass=ConstructorMeta):
             node = node.parent
 
         return None
+
+    def get_last_collections_node(self):
+        node = self.parent
+
+        while node:
+            if hasattr(node, "_collections"):
+                return node
+            node = node.parent
+        return None
+
     def clean(self):
         for child in self.children:
             child.clean()
         if self.object:
-            bpy.data.objects.remove(self.object, do_unlink=True)
+            try:
+                bpy.data.objects.remove(self.object, do_unlink=True)
+            except ReferenceError:
+                pass
         self.children = []
         return self
 

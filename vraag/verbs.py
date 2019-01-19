@@ -42,6 +42,8 @@ def filter_by_materials(elements, *args):
 
 @vraag_verb
 def on_layer(vl, number):
+    if bpy.app.version >= (2,80):
+        raise NotImplementedError("Layers are not implemented for Blender 2.80 and above.")
     return vl.__class__([element for element in vl if element.layers[number]])
 
 @vraag_verb
@@ -80,10 +82,11 @@ def scene(vl, *args):
 @vraag_verb
 def hide(vl):
     if bpy.app.version >= (2,80):
-        raise NotImplementedError("Hide is not yet implemented for Blender 2.80 and above.")
-
-    for element in vl.elements:
-        element.hide = True
+        for element in vl.elements:
+            element.hide_viewport = True
+    else:
+        for element in vl.elements:
+            element.hide = True
     return vl
 
 
@@ -96,11 +99,11 @@ def names(vl):
 @vraag_verb
 def show(vl):
     for element in vl.elements:
-        try:
+        if bpy.app.version >= (2,80):
+            element.hide_viewport = False
+        else:
             element.hide = False
-        except:
-            continue
-    return vl.__class__(vl.elements)
+    return vl
 
 @vraag_verb
 def set_prop(vl, property_name, value):
@@ -174,7 +177,10 @@ def activate(vl):
 def select(vl):
     for element in vl.elements:
         if type(element) is bpy_types.Object:
-            element.select = True
+            if bpy.app.version >= (2,80):
+                element.select_set(True)
+            else:
+                element.select = True
     return vl
 
 @vraag_verb
@@ -186,7 +192,10 @@ def remove(vl):
 @vraag_verb
 def deselect(vl):
     for element in vl.elements:
-        element.select = False
+        if bpy.app.version >= (2,80):
+            element.select_set(False)
+        else:
+            element.select = False
     return vl
 
 @vraag_verb

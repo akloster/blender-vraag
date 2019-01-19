@@ -49,5 +49,5 @@ def path():
     for i in range(1,4):
         yield t.scale((f/i,f/i,1))
 
-mesh = pipe(path())
+mesh = pipe(path()).make_mesh()
 root.mesh(mesh)
